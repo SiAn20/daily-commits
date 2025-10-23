@@ -2,7 +2,7 @@ name: Daily Commit
 
 on:
   schedule:
-    - cron: "0 20 * * *"
+    - cron: "0 16 * * *"  # 17:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -11,12 +11,9 @@ permissions:
 jobs:
   daily-commit:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false
 
       - name: Update daily log
         run: |
@@ -29,15 +26,12 @@ jobs:
           git config user.name "SiAn20"
           git config user.email "sidneyangellysg@gmail.com"
           git add daily-log.txt
-      
+
           if git diff --cached --quiet; then
-            echo "No new changes to commit."
+            echo "ℹ️ No new changes to commit."
           else
             COMMIT_MSG="chore(daily-log): update log entry for $(date -u +'%Y-%m-%d')"
             git commit -m "$COMMIT_MSG" -m "Automated commit to keep repository active and track daily logs."
             git push origin HEAD:main
             echo "Commit pushed: $COMMIT_MSG"
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
