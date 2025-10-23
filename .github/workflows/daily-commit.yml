@@ -18,11 +18,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Append date to daily-log.txt
+      - name: Update daily log
         run: |
-          echo "Daily log: $(date -u +"%Y-%m-%d %H:%M UTC")" >> daily-log.txt
+          DATE=$(date -u +"%Y-%m-%d %H:%M UTC")
+          echo "Daily log entry — $DATE" >> daily-log.txt
+          echo "Added new log entry for $DATE"
 
-      - name: Commit and push
+      - name: Commit and push changes
         env:
           TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
@@ -30,8 +32,10 @@ jobs:
           git config user.email "sidneyangellysg@gmail.com"
           git add daily-log.txt
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No news changes to commit."
           else
-            git commit -m "Add daily log entry: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            COMMIT_MSG="chore(daily-log): update log entry for $(date -u +'%Y-%m-%d')"
+            git commit -m "$COMMIT_MSG" -m "Automated commit to keep repository active and track daily logs."
             git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} HEAD:main
+            echo "Commit pushed: $COMMIT_MSG"
           fi
