@@ -2,7 +2,7 @@ name: Daily Commit
 
 on:
   schedule:
-    - cron: "0 18 * * *"
+    - cron: "0 19 * * *"
   workflow_dispatch:
 
 permissions:
@@ -25,17 +25,19 @@ jobs:
           echo "Added new log entry for $DATE"
 
       - name: Commit and push changes
-        env:
-          TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: |
           git config user.name "SiAn20"
           git config user.email "sidneyangellysg@gmail.com"
           git add daily-log.txt
+      
           if git diff --cached --quiet; then
-            echo "No news changes to commit."
+            echo "No new changes to commit."
           else
             COMMIT_MSG="chore(daily-log): update log entry for $(date -u +'%Y-%m-%d')"
             git commit -m "$COMMIT_MSG" -m "Automated commit to keep repository active and track daily logs."
-            git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} HEAD:main
+            git push origin HEAD:main
             echo "Commit pushed: $COMMIT_MSG"
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
