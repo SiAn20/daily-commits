@@ -1,0 +1,36 @@
+name: Daily Commit
+
+on:
+  schedule:
+    - cron: "0 20 * * *" 
+  workflow_dispatch:    
+
+permissions:
+  contents: write        
+
+jobs:
+  daily-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+
+      - name: Append date to daily-log.txt
+        run: |
+          echo "Commit automático: $(date -u +"%Y-%m-%d %H:%M:%SZ")" >> daily-log.txt
+
+      - name: Commit and push
+        run: |
+          git config user.name "AutoCommitBot"
+          git config user.email "autocommit@users.noreply.github.com"
+          git add daily-log.txt
+          # Evita fallar si no hay cambios
+          if git diff --cached --quiet; then
+            echo "No hay cambios, no se crea commit."
+          else
+            git commit -m "Automated daily commit: $(date -u +'%Y-%m-%d')"
+            git push
+          fi
